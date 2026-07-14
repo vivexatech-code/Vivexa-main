@@ -1,0 +1,26 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Employee documents keyed by employeeId (e.g. VIV001)
+    match /employees/{employeeId} {
+      // Public can read a single employee by ID (verification page fallback).
+      // Prefer /api/verify with Firebase Admin to avoid exposing phone numbers.
+      allow get: if true;
+
+      // Only authenticated admins can list / query / write
+      allow list: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    // Auto-increment counter for VIV001, VIV002, …
+    match /counters/{docId} {
+      allow read, write: if isSignedIn();
+    }
+  }
+}
