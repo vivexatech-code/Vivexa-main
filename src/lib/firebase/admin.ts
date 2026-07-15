@@ -47,14 +47,45 @@ export function normalizePrivateKey(raw: string): string {
   return key;
 }
 
+function normalizeClientEmail(raw: string): string {
+  let email = raw.trim().replace(/\r/g, "");
+  if (email.endsWith(",")) email = email.slice(0, -1).trim();
+  while (
+    (email.startsWith('"') && email.endsWith('"')) ||
+    (email.startsWith("'") && email.endsWith("'"))
+  ) {
+    email = email.slice(1, -1).trim();
+  }
+  // Unclosed quote in .env can swallow the next variable into this value
+  const newline = email.search(/[\r\n]/);
+  if (newline !== -1) {
+    email = email.slice(0, newline).trim();
+  }
+  if (email.startsWith('"') || email.startsWith("'")) {
+    email = email.slice(1).trim();
+  }
+  if (email.endsWith('"') || email.endsWith("'")) {
+    email = email.slice(0, -1).trim();
+  }
+  return email;
+}
+
 function getAdminCredentials() {
-  const projectId = process.env.FIREBASE_PROJECT_ID?.trim();
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim();
+  const projectId = process.env.FIREBASE_PROJECT_ID?.trim().replace(/^["']|["']$/g, "");
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
+    ? normalizeClientEmail(process.env.FIREBASE_CLIENT_EMAIL)
+    : undefined;
   const rawKey = process.env.FIREBASE_PRIVATE_KEY;
   const privateKey = rawKey ? normalizePrivateKey(rawKey) : undefined;
 
   if (!projectId || !clientEmail || !privateKey) {
     return null;
+  }
+
+  if (!clientEmail.endsWith(".gserviceaccount.com") || clientEmail.includes("BEGIN")) {
+    throw new Error(
+      'FIREBASE_CLIENT_EMAIL is malformed. Use only the service account email (close the quote on its own line), e.g. FIREBASE_CLIENT_EMAIL="firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com"'
+    );
   }
 
   if (!privateKey.includes("BEGIN PRIVATE KEY") || !privateKey.includes("\n")) {

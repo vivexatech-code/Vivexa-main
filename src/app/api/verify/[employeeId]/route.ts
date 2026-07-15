@@ -52,8 +52,22 @@ export async function GET(_request: Request, { params }: Params) {
     );
   } catch (error) {
     console.error("Verify API error:", error);
+    const message = error instanceof Error ? error.message : "";
+    const unauthenticated =
+      message.includes("UNAUTHENTICATED") ||
+      message.includes("invalid authentication credentials");
     return NextResponse.json(
-      { error: "verification_failed" },
+      {
+        error: unauthenticated
+          ? "admin_credentials_invalid"
+          : "verification_failed",
+        ...(unauthenticated
+          ? {
+              message:
+                "Firebase Admin credentials are invalid. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY on the host (each on its own fully quoted line).",
+            }
+          : {}),
+      },
       { status: 500 }
     );
   }
