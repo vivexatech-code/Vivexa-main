@@ -25,7 +25,8 @@ Copy `.env.example` to `.env.local` and fill in values.
 
 - Create a Firebase project
 - Enable **Email/Password** authentication
-- Create an admin user in Authentication
+- Create the first admin from the login page (**No admin user yet? Create one**), or add a user under Authentication → Users in the Firebase console
+- Turn off `NEXT_PUBLIC_ALLOW_ADMIN_SIGNUP` after the first admin exists (leave it off in production)
 - Create a Firestore database
 - Deploy `firestore.rules` (or paste into Firestore → Rules)
 - Optional but recommended: create a service account and add `FIREBASE_*` admin env vars for the secure `/api/verify` endpoint
@@ -61,6 +62,8 @@ Open [http://localhost:3000](http://localhost:3000) — you will be redirected t
 - Admin login (Firebase Auth) with protected dashboard
 - Dashboard stats + recent employees + quick actions
 - Add / edit / delete / search / filter employees
+- Project management (published to the public website)
+- Service management (published to the public website)
 - Auto employee IDs: `12701`, `12702`, `12703`, …
 - Profile photo upload to Cloudinary
 - ID card preview + print-ready PDF (front + back)

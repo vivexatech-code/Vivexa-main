@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { UserPlus, Users } from "lucide-react";
+import { Briefcase, FolderKanban, Inbox, UserPlus, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -17,6 +17,30 @@ const actions = [
     title: "Manage Employees",
     description: "Search, edit, or download ID cards",
     icon: Users,
+  },
+  {
+    href: "/projects/new",
+    title: "Add Project",
+    description: "Publish work to the public website",
+    icon: FolderKanban,
+  },
+  {
+    href: "/services/new",
+    title: "Add Service",
+    description: "Update the services shown on the site",
+    icon: Briefcase,
+  },
+  {
+    href: "/careers/new",
+    title: "Add opportunity",
+    description: "Publish a job or internship",
+    icon: Briefcase,
+  },
+  {
+    href: "/applications",
+    title: "Review applications",
+    description: "See candidates from the careers page",
+    icon: Inbox,
   },
 ];
 
@@ -34,7 +58,7 @@ export function QuickActions() {
               key={action.href}
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.15 + index * 0.08 }}
+              transition={{ delay: 0.15 + index * 0.06 }}
             >
               <Link
                 href={action.href}

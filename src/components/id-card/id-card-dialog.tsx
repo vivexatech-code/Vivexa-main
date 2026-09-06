@@ -18,6 +18,7 @@ import { downloadIdCardPdf } from "@/lib/id-card-pdf";
 import { ID_CARD_PREVIEW_WIDTH } from "@/lib/id-card-layout";
 import { getCroppedImageBlob } from "@/lib/crop-image";
 import { updateEmployeePhotoCrop } from "@/lib/firebase/employees";
+import { uploadImageFile } from "@/lib/authenticated-upload";
 import type { Employee, PhotoCrop } from "@/types/employee";
 import { DEFAULT_PHOTO_CROP } from "@/types/employee";
 
@@ -95,30 +96,20 @@ export function IdCardDialog({
       const file = new File([blob], `${localEmployee.employeeId}-crop.jpg`, {
         type: "image/jpeg",
       });
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload.error || "Upload failed");
-      }
+      const url = await uploadImageFile(file, "employees");
 
       const original =
         localEmployee.profilePhotoOriginal || localEmployee.profilePhoto;
 
       await updateEmployeePhotoCrop(localEmployee.employeeId, {
-        profilePhoto: payload.url,
+        profilePhoto: url,
         profilePhotoOriginal: original,
         photoCrop: cropState,
       });
 
       const updated: Employee = {
         ...localEmployee,
-        profilePhoto: payload.url,
+        profilePhoto: url,
         profilePhotoOriginal: original,
         photoCrop: cropState,
         updatedAt: new Date().toISOString(),

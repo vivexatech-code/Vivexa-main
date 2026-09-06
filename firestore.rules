@@ -7,20 +7,106 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Employee documents keyed by employeeId (e.g. VIV001)
+    function isPublished() {
+      return resource.data.status == "published";
+    }
+
+    // Employee documents keyed by numeric employeeId (e.g. 12701)
     match /employees/{employeeId} {
-      // Public can read a single employee by ID (verification page fallback).
+      // Public team directory and verification fallback.
       // Prefer /api/verify with Firebase Admin to avoid exposing phone numbers.
       allow get: if true;
-
-      // Only authenticated admins can list / query / write
-      allow list: if isSignedIn();
+      allow list: if true;
       allow create, update, delete: if isSignedIn();
     }
 
-    // Auto-increment counter for VIV001, VIV002, …
     match /counters/{docId} {
       allow read, write: if isSignedIn();
+    }
+
+    match /projects/{projectId} {
+      allow get: if isSignedIn() || isPublished();
+      allow list: if isSignedIn() || isPublished();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    match /services/{serviceId} {
+      allow get: if isSignedIn() || isPublished();
+      allow list: if isSignedIn() || isPublished();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    match /blogs/{blogId} {
+      allow get: if isSignedIn() || isPublished();
+      allow list: if isSignedIn() || isPublished();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    match /careerOpportunities/{opportunityId} {
+      allow get: if isSignedIn() || isPublished();
+      allow list: if isSignedIn() || isPublished();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    match /careerApplications/{applicationId} {
+      allow create: if request.resource.data.keys().hasOnly([
+          "opportunityId",
+          "opportunityTitle",
+          "opportunityType",
+          "name",
+          "email",
+          "phone",
+          "location",
+          "resumeUrl",
+          "portfolioUrl",
+          "coverLetter",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.opportunityId is string
+        && request.resource.data.opportunityTitle is string
+        && request.resource.data.opportunityType in ["Job", "Internship"]
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.phone is string
+        && request.resource.data.status == "new"
+        && request.resource.data.name.size() > 1
+        && request.resource.data.name.size() < 120
+        && request.resource.data.email.size() < 200
+        && request.resource.data.email.matches(".*@.*\\..*")
+        && request.resource.data.phone.size() > 6
+        && request.resource.data.phone.size() < 40;
+      allow get, list, update, delete: if isSignedIn();
+    }
+
+    match /contactInquiries/{inquiryId} {
+      allow create: if request.resource.data.keys().hasOnly([
+          "name",
+          "email",
+          "phone",
+          "company",
+          "subject",
+          "message",
+          "services",
+          "budget",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.phone is string
+        && request.resource.data.subject is string
+        && request.resource.data.message is string
+        && request.resource.data.status == "new"
+        && request.resource.data.name.size() > 1
+        && request.resource.data.name.size() < 120
+        && request.resource.data.email.size() < 200
+        && request.resource.data.email.matches(".*@.*\\..*")
+        && request.resource.data.subject.size() > 1
+        && request.resource.data.message.size() > 9;
+      allow get, list, update, delete: if isSignedIn();
     }
   }
 }

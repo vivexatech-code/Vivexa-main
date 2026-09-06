@@ -27,10 +27,16 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+const allowSignup =
+  process.env.NEXT_PUBLIC_ALLOW_ADMIN_SIGNUP === "true" ||
+  process.env.NODE_ENV === "development";
+
 export default function LoginPage() {
-  const { login, user, loading } = useAuth();
+  const { login, register: registerAdmin, user, loading } = useAuth();
   const router = useRouter();
+  const [mode, setMode] = useState<"signin" | "create">("signin");
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const {
     register,
@@ -41,20 +47,37 @@ export default function LoginPage() {
     defaultValues: { email: "", password: "" },
   });
 
+  const nextPath = () => {
+    if (typeof window === "undefined") return "/dashboard";
+    const next = new URLSearchParams(window.location.search).get("next");
+    return next && next.startsWith("/") && !next.startsWith("//")
+      ? next
+      : "/dashboard";
+  };
+
   useEffect(() => {
     if (!loading && user) {
-      router.replace("/dashboard");
+      router.replace(nextPath());
     }
   }, [loading, user, router]);
 
   const onSubmit = handleSubmit(async (values) => {
     setSubmitting(true);
+    setFormError(null);
     try {
-      await login(values.email, values.password);
-      toast.success("Welcome back");
-      router.replace("/dashboard");
-    } catch {
-      toast.error("Invalid email or password");
+      if (mode === "create") {
+        await registerAdmin(values.email, values.password);
+        toast.success("Admin account created");
+      } else {
+        await login(values.email, values.password);
+        toast.success("Welcome back");
+      }
+      router.replace(nextPath());
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Invalid email or password";
+      setFormError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -90,20 +113,29 @@ export default function LoginPage() {
             <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-2xl bg-accent text-primary">
               <Lock className="h-5 w-5" />
             </div>
-            <CardTitle>Admin sign in</CardTitle>
+            <CardTitle>
+              {mode === "create" ? "Create admin account" : "Admin sign in"}
+            </CardTitle>
             <CardDescription>
-              Access is restricted to authorized Vivexa administrators.
+              {mode === "create"
+                ? "This creates a Firebase Authentication user. Use a real email and a password of at least 6 characters."
+                : "Sign in with a Firebase Authentication user. Employee records cannot be used here."}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={onSubmit} className="space-y-4">
+              {formError ? (
+                <p className="rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                  {formError}
+                </p>
+              ) : null}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="admin@vivexa.com"
+                  placeholder="you@vivexa.com"
                   {...register("email")}
                 />
                 {errors.email ? (
@@ -115,8 +147,10 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   type="password"
-                  autoComplete="current-password"
-                  placeholder="••••••••"
+                  autoComplete={
+                    mode === "create" ? "new-password" : "current-password"
+                  }
+                  placeholder="At least 6 characters"
                   {...register("password")}
                 />
                 {errors.password ? (
@@ -129,8 +163,24 @@ export default function LoginPage() {
                 {submitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : null}
-                Sign in
+                {mode === "create" ? "Create account" : "Sign in"}
               </Button>
+              {allowSignup ? (
+                <button
+                  type="button"
+                  className="w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                  onClick={() => {
+                    setFormError(null);
+                    setMode((current) =>
+                      current === "create" ? "signin" : "create",
+                    );
+                  }}
+                >
+                  {mode === "create"
+                    ? "Already have an account? Sign in"
+                    : "No admin user yet? Create one"}
+                </button>
+              ) : null}
             </form>
           </CardContent>
         </Card>

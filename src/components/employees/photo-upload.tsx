@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { uploadImageFile } from "@/lib/authenticated-upload";
 
 type PhotoUploadProps = {
   value: string;
@@ -29,20 +30,8 @@ export function PhotoUpload({ value, onChange, name }: PhotoUploadProps) {
 
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload.error || "Upload failed");
-      }
-
-      onChange(payload.url);
+      const url = await uploadImageFile(file, "employees");
+      onChange(url);
       toast.success("Photo uploaded");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Upload failed");

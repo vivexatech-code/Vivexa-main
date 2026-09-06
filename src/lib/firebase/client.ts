@@ -12,6 +12,11 @@ const firebaseConfig = {
 };
 
 function getFirebaseApp(): FirebaseApp {
+  if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+    throw new Error(
+      "Firebase client config is incomplete. Add NEXT_PUBLIC_FIREBASE_API_KEY and NEXT_PUBLIC_FIREBASE_PROJECT_ID to .env.local, then restart the dev server.",
+    );
+  }
   if (getApps().length) {
     return getApp();
   }

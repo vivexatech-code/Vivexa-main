@@ -24,7 +24,19 @@ import type { Employee, EmployeeFormData } from "@/types/employee";
 const schema = z.object({
   name: z.string().min(2, "Full name is required"),
   designation: z.string().min(2, "Designation is required"),
-  phone: z.string().min(8, "Phone number is required"),
+  phone: z
+    .string()
+    .min(8, "Phone number is required")
+    .refine((value) => {
+      const digits = value.replace(/\D/g, "");
+      const national =
+        digits.length === 12 && digits.startsWith("91")
+          ? digits.slice(2)
+          : digits.length === 11 && digits.startsWith("0")
+            ? digits.slice(1)
+            : digits;
+      return national.length === 10 && /^[6-9]/.test(national);
+    }, "Enter a valid Indian mobile number"),
   employeeType: z.enum(["Employee", "Intern"]),
   profilePhoto: z.string().min(1, "Profile photo is required"),
   joinedDate: z.string().min(1, "Joined date is required"),

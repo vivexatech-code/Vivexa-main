@@ -4,11 +4,15 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
+  Briefcase,
+  FolderKanban,
+  Inbox,
   LayoutDashboard,
-  Users,
-  UserPlus,
   LogOut,
   Menu,
+  Newspaper,
+  Plus,
+  Users,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -17,11 +21,49 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/employees", label: "Employees", icon: Users },
-  { href: "/employees/new", label: "Add Employee", icon: UserPlus },
+const navGroups = [
+  {
+    label: "Overview",
+    items: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }],
+  },
+  {
+    label: "People",
+    items: [
+      { href: "/employees", label: "Employees", icon: Users, match: "/employees" },
+      { href: "/employees/new", label: "Add Employee", icon: Plus },
+    ],
+  },
+  {
+    label: "Website",
+    items: [
+      { href: "/projects", label: "Projects", icon: FolderKanban, match: "/projects" },
+      { href: "/services", label: "Services", icon: Briefcase, match: "/services" },
+    ],
+  },
+  {
+    label: "Career Management",
+    items: [
+      { href: "/careers", label: "Opportunities", icon: Briefcase, match: "/careers" },
+      { href: "/applications", label: "Applications", icon: Inbox, match: "/applications" },
+    ],
+  },
+  {
+    label: "Blog Management",
+    items: [
+      { href: "/blogs", label: "Articles", icon: Newspaper, match: "/blogs" },
+      { href: "/blogs/new", label: "Write Article", icon: Plus },
+    ],
+  },
 ];
+
+function isActive(pathname: string, href: string, match?: string) {
+  if (href === "/dashboard") return pathname === href;
+  if (href === "/employees/new" || href === "/blogs/new") return pathname === href;
+  if (match) {
+    return pathname === match || pathname.startsWith(`${match}/`);
+  }
+  return pathname === href;
+}
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -42,35 +84,40 @@ export function Sidebar() {
           <p className="font-display text-2xl font-semibold tracking-tight text-foreground">
             Vivexa
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">Employee Management</p>
+          <p className="mt-1 text-xs text-muted-foreground">Admin Panel</p>
         </Link>
       </div>
 
-      <nav className="mt-6 flex-1 space-y-1 px-3">
-        {navItems.map((item) => {
-          const active =
-            pathname === item.href ||
-            (item.href !== "/dashboard" &&
-              item.href !== "/employees/new" &&
-              pathname.startsWith(item.href));
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
-                active
-                  ? "bg-primary text-primary-foreground shadow-soft"
-                  : "text-secondary-foreground hover:bg-muted"
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              {item.label}
-            </Link>
-          );
-        })}
+      <nav className="mt-4 flex-1 space-y-5 overflow-y-auto px-3 pb-4">
+        {navGroups.map((group) => (
+          <div key={group.label}>
+            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              {group.label}
+            </p>
+            <div className="space-y-1">
+              {group.items.map((item) => {
+                const active = isActive(pathname, item.href, item.match);
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+                      active
+                        ? "bg-primary text-primary-foreground shadow-soft"
+                        : "text-secondary-foreground hover:bg-muted",
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       <div className="border-t border-border p-4">
