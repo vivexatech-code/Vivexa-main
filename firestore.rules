@@ -36,6 +36,18 @@ service cloud.firestore {
       allow create, update, delete: if isSignedIn();
     }
 
+    match /countries/{countryId} {
+      allow get: if isSignedIn() || isPublished();
+      allow list: if isSignedIn() || isPublished();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    match /clientLogos/{logoId} {
+      allow get: if isSignedIn() || isPublished();
+      allow list: if isSignedIn() || isPublished();
+      allow create, update, delete: if isSignedIn();
+    }
+
     match /blogs/{blogId} {
       allow get: if isSignedIn() || isPublished();
       allow list: if isSignedIn() || isPublished();
@@ -107,6 +119,30 @@ service cloud.firestore {
         && request.resource.data.subject.size() > 1
         && request.resource.data.message.size() > 9;
       allow get, list, update, delete: if isSignedIn();
+    }
+
+    // Enterprise Administration & Access Control Rules
+    match /admin_users/{userId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /departments/{deptId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /approval_requests/{requestId} {
+      allow read, create: if isSignedIn();
+      // Allow update only if signed in and cannot self-approve
+      allow update: if isSignedIn()
+        && (request.resource.data.status != "approved" || resource.data.requesterId != request.auth.uid);
+      allow delete: if isSignedIn();
+    }
+
+    match /audit_logs/{logId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      // Strictly immutable: no updates or deletions allowed to audit trail
+      allow update, delete: if false;
     }
   }
 }

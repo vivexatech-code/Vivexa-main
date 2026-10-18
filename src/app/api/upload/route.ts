@@ -9,6 +9,8 @@ const FOLDERS = {
   projects: "vivexa/projects",
   services: "vivexa/services",
   blogs: "vivexa/blogs",
+  countries: "vivexa/countries",
+  logos: "vivexa/logos",
 } as const;
 
 type FolderKey = keyof typeof FOLDERS;
@@ -18,7 +20,9 @@ function resolveFolder(value: FormDataEntryValue | null): FolderKey {
     value === "projects" ||
     value === "services" ||
     value === "employees" ||
-    value === "blogs"
+    value === "blogs" ||
+    value === "countries" ||
+    value === "logos"
   ) {
     return value;
   }

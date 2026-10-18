@@ -1,6 +1,12 @@
 import { getClientAuth } from "@/lib/firebase/client";
 
-export type UploadFolder = "employees" | "projects" | "services" | "blogs";
+export type UploadFolder =
+  | "employees"
+  | "projects"
+  | "services"
+  | "blogs"
+  | "countries"
+  | "logos";
 
 export async function uploadImageFile(file: File, folder: UploadFolder) {
   const user = getClientAuth().currentUser;

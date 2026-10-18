@@ -14,6 +14,8 @@ const badgeVariants = cva(
           "border-transparent bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/10",
         warning:
           "border-transparent bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/10",
+        destructive:
+          "border-transparent bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
         muted:
           "border-transparent bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-500/10",
       },

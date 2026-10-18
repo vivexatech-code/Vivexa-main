@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Briefcase, FolderKanban, Inbox, UserPlus, Users } from "lucide-react";
+import {
+  Briefcase,
+  Building2,
+  FolderKanban,
+  Globe,
+  Inbox,
+  UserPlus,
+  Users,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -29,6 +37,18 @@ const actions = [
     title: "Add Service",
     description: "Update the services shown on the site",
     icon: Briefcase,
+  },
+  {
+    href: "/countries",
+    title: "Multi-Country Experiences",
+    description: "Manage UK, US, CA, AU & India content, currencies, and SEO",
+    icon: Globe,
+  },
+  {
+    href: "/logos",
+    title: "Client Logos",
+    description: "Manage 'Who We Work With' client logos marquee",
+    icon: Building2,
   },
   {
     href: "/careers/new",

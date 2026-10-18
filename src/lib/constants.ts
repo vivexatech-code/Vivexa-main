@@ -64,3 +64,39 @@ export const CAREER_DEPARTMENTS = [
   "Operations",
   "Other",
 ] as const;
+
+export const COUNTRIES_COLLECTION = "countries";
+export const CLIENT_LOGOS_COLLECTION = "clientLogos";
+
+export const ADMIN_USERS_COLLECTION = "admin_users";
+export const DEPARTMENTS_COLLECTION = "departments";
+export const APPROVAL_REQUESTS_COLLECTION = "approval_requests";
+export const AUDIT_LOGS_COLLECTION = "audit_logs";
+export const CONTACT_INQUIRIES_COLLECTION = "contactInquiries";
+
+import type { AppModule } from "@/types/auth";
+
+export const APP_MODULE_CONFIG = [
+  { id: "dashboard" as const, label: "Dashboard", description: "Overview metrics and system status" },
+  { id: "employees" as const, label: "Employees & Team", description: "Staff directory, designations, and ID cards" },
+  { id: "countries" as const, label: "Country Management", description: "Multi-country routes, currencies, and hero settings" },
+  { id: "logos" as const, label: "Client Logos", description: "Marquee and partner client brand logos" },
+  { id: "projects" as const, label: "Projects & Portfolio", description: "Work portfolio and case study showcases" },
+  { id: "services" as const, label: "Services & Pricing", description: "Services offerings, tiers, and pricing" },
+  { id: "careers" as const, label: "Careers & Openings", description: "Job and internship listings" },
+  { id: "applications" as const, label: "Job Applications", description: "Applicant resumes and review workflows" },
+  { id: "blogs" as const, label: "Blog & Journal", description: "Articles, author attribution, and SEO" },
+  { id: "contacts" as const, label: "Contact Inquiries", description: "Client leads and project inquiries" },
+  { id: "approvals" as const, label: "Approval Requests", description: "Review and approve/reject pending changes" },
+  { id: "users" as const, label: "User Management", description: "Manage admin users, roles, and security access" },
+  { id: "departments" as const, label: "Department Management", description: "Manage departments and default permissions" },
+  { id: "audit_logs" as const, label: "Audit Logs", description: "View immutable administrative and security audit trail" },
+] as const;
+
+export const APP_MODULE_MAP: Record<AppModule, { id: AppModule; label: string; description: string }> =
+  APP_MODULE_CONFIG.reduce((acc, mod) => {
+    acc[mod.id as AppModule] = mod;
+    return acc;
+  }, {} as Record<AppModule, { id: AppModule; label: string; description: string }>);
+
+

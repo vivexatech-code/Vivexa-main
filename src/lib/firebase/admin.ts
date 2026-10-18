@@ -1,8 +1,10 @@
 import { getApps, initializeApp, cert, type App } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
+import { getAuth, type Auth } from "firebase-admin/auth";
 
 let adminApp: App | undefined;
 let adminDb: Firestore | undefined;
+let adminAuth: Auth | undefined;
 
 /**
  * Normalize a Firebase service-account private key from .env / Vercel / JSON paste.
@@ -114,4 +116,23 @@ export function getAdminDb(): Firestore | null {
 
   adminDb = getFirestore(adminApp);
   return adminDb;
+}
+
+export function getAdminAuth(): Auth | null {
+  if (adminAuth) return adminAuth;
+
+  const credentials = getAdminCredentials();
+  if (!credentials) return null;
+
+  if (!getApps().length) {
+    adminApp = initializeApp({
+      credential: cert(credentials),
+      projectId: credentials.projectId,
+    });
+  } else {
+    adminApp = getApps()[0];
+  }
+
+  adminAuth = getAuth(adminApp);
+  return adminAuth;
 }
